@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecoverKit — Find the money Amazon FBA owes you</title>
+<meta name="description" content="Drop in your Seller Central reports. In 30 seconds see every short-received shipment, unreturned refund and fee overcharge Amazon owes you. Runs 100% in your browser.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#">Recover<span>Kit</span></a>
+    <nav><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a><a class="btn btn-sm" href="#audit">Run free audit</a></nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-in">
+    <div>
+      <p class="eyebrow">For Amazon FBA sellers doing $20k–$300k a month</p>
+      <h1>Amazon probably owes you <em>1–3% of revenue</em>. Find it in 30 seconds.</h1>
+      <p class="lead">Drop in four Seller Central reports. RecoverKit flags short-received shipments, refunds that were never returned, and fulfillment fees charged on the wrong size, then hands you a claim-ready file.</p>
+      <div class="cta-row">
+        <a class="btn" href="#audit">Run my free audit</a>
+        <button class="btn btn-ghost" data-demo>Try it with demo data</button>
+      </div>
+      <ul class="trust">
+        <li>No Seller Central login</li><li>Files never leave your browser</li><li>No signup to see your number</li>
+      </ul>
+    </div>
+    <div class="hero-card">
+      <p class="muted small">Sample audit · kitchen brand, 8 SKUs</p>
+      <p class="big-num" id="heroNum">$6,093</p>
+      <p class="muted">estimated recoverable</p>
+      <div class="bars">
+        <div><span>Fee overcharges</span><b>$4,238</b></div>
+        <div><span>Short-received inbound</span><b>$1,097</b></div>
+        <div><span>Refunded, not returned</span><b>$408</b></div>
+        <div><span>Lost/damaged in warehouse</span><b>$350</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="wrap section">
+  <h2>Three leaks, one drag-and-drop</h2>
+  <div class="grid3">
+    <div class="card"><h3>Short-received shipments</h3><p>You shipped 96 units and Amazon checked in 72. We compare every shipment line, skip the ones still being received, and value the gap.</p></div>
+    <div class="card"><h3>Refunded, not returned</h3><p>The customer got their money back, but the item never came back. After 60 days with no return, Amazon should have charged the buyer or paid you.</p></div>
+    <div class="card"><h3>Dimension &amp; fee overcharges</h3><p>Two-tenths of an inch can push you into a bigger size tier. We re-run the fee from your real measurements and multiply the difference by every unit you've shipped.</p></div>
+  </div>
+</section>
+
+<section id="audit" class="section audit">
+  <div class="wrap">
+    <div class="audit-head">
+      <h2>Run your audit</h2>
+      <button class="btn btn-ghost" data-demo>Load demo dataset</button>
+    </div>
+    <div id="drop" class="drop" tabindex="0">
+      <p><b>Drop your reports here</b> or <label class="link">browse<input id="fileInput" type="file" multiple accept=".csv,.txt,.tsv" hidden></label></p>
+      <p class="muted small">CSV or tab-delimited .txt, straight from Seller Central. We detect which report is which.</p>
+    </div>
+    <div class="slots" id="slots"></div>
+    <details class="howto">
+      <summary>Where do I download each report?</summary>
+      <ul>
+        <li><b>Inventory Ledger</b>: Reports → Fulfillment → Inventory → Inventory Ledger → Detailed view, last 18 months.</li>
+        <li><b>Inbound Shipments</b>: Shipping queue → each shipment → Contents → Download (or the Shipment Items export).</li>
+        <li><b>FBA Customer Returns</b>: Reports → Fulfillment → Customer Concessions → FBA customer returns.</li>
+        <li><b>Refunds</b>: Reports → Payments → Date Range Reports → Transaction, last 18 months. We read only rows of type Refund.</li>
+        <li><b>Fee Preview</b>: Reports → Fulfillment → Payments → Fee Preview.</li>
+        <li><b>Optional — My Measurements</b>: a CSV with <code>sku, true-longest-side, true-median-side, true-shortest-side, true-weight</code> (inches, pounds). Without it we check Amazon's dims against Amazon's own fee.</li>
+      </ul>
+    </details>
+    <details class="howto">
+      <summary>Audit settings</summary>
+      <div class="settings">
+        <label>Value per unit as % of list price <input type="number" id="ratio" value="60" min="10" max="100"> %</label>
+        <label>Ignore shipments newer than <input type="number" id="inboundAge" value="30"> days</label>
+        <label>Refund grace period <input type="number" id="graceDays" value="60"> days</label>
+        <label>Look back <input type="number" id="lookback" value="540"> days</label>
+      </div>
+    </details>
+    <div class="row-btns"><button class="btn" id="runBtn" disabled>Run audit</button><button class="btn btn-ghost" id="clearBtn">Clear files</button></div>
+
+    <div id="results" hidden>
+      <div class="total-box">
+        <div><p class="muted small">Estimated recoverable</p><p class="big-num" id="totalAll">$0</p><p class="muted small" id="totalNote"></p></div>
+        <div class="cats" id="cats"></div>
+      </div>
+      <div id="warnings"></div>
+      <div class="table-wrap">
+        <table id="findings"><thead><tr><th>Type</th><th>Reference</th><th>SKU</th><th>Units</th><th>Evidence</th><th class="r">Est. $</th></tr></thead><tbody></tbody></table>
+        <div class="paywall" id="paywall">
+          <h3><span id="hiddenCount">0</span> more claims worth <span id="hiddenAmt">$0</span> are locked</h3>
+          <p>Unlock the full list and a claim-ready CSV with case text for every finding, ready to paste into Seller Central.</p>
+          <div class="row-btns center">
+            <a class="btn" id="buyBtn" target="_blank" rel="noopener">Unlock full export, <span class="price"></span> one-time</a>
+            <a class="btn btn-ghost" id="dfyBtn">Or have us file it (<span class="dfy"></span> of what's recovered)</a>
+          </div>
+          <form id="codeForm" class="code-form"><input id="codeInput" placeholder="Have an unlock code?"><button class="btn btn-sm">Apply</button></form>
+        </div>
+      </div>
+      <div class="row-btns" id="exportRow">
+        <button class="btn" id="exportCsv">Download claim CSV</button>
+        <button class="btn btn-ghost" id="exportReport">Print / save report as PDF</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="wrap section">
+  <h2>Pricing that pays for itself on the first claim</h2>
+  <div class="grid3">
+    <div class="card"><h3>Free scan</h3><p class="price-lg">$0</p><ul><li>Full dollar total by category</li><li>Top findings shown</li><li>Runs locally, unlimited</li></ul></div>
+    <div class="card featured"><h3>Claim export</h3><p class="price-lg"><span class="price"></span></p><ul><li>Every finding, unlocked</li><li>Claim CSV with case text</li><li>Printable report for your records</li></ul><a class="btn" href="#audit">Start free</a></div>
+    <div class="card"><h3>Done for you</h3><p class="price-lg"><span class="dfy"></span></p><ul><li>We open and chase every case</li><li>You pay only on money recovered</li><li>Read-only user permission</li></ul></div>
+  </div>
+</section>
+
+<section id="faq" class="wrap section faq">
+  <h2>Questions sellers ask</h2>
+  <details><summary>Do you see my data?</summary><p>No. The audit runs in JavaScript inside your browser tab. Nothing is uploaded; you can disconnect from the internet after the page loads and it still works.</p></details>
+  <details><summary>How accurate are the dollar figures?</summary><p>They're estimates. Inbound and warehouse units are valued at a share of your list price (you set it). Amazon pays on its own valuation, so recovered amounts vary. Fee checks use an editable, approximate rate table; confirm against the current rate card before filing.</p></details>
+  <details><summary>Doesn't Amazon reimburse automatically now?</summary><p>For some cases, yes. Many still need a case opened with evidence, and windows are short. The claim CSV includes the evidence line and suggested case text for each one.</p></details>
+  <details><summary>What if a finding was already reimbursed?</summary><p>Check it against your Reimbursements report before filing. Reimbursement matching is on our roadmap.</p></details>
+</section>
+
+<footer class="wrap foot muted small">RecoverKit is not affiliated with Amazon. Estimates only; verify before filing.</footer>
+
+<script src="config.js"></script>
+<script src="engine.js"></script>
+<script src="demo-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
